@@ -20,6 +20,7 @@
                 <outlet property="number7" destination="cF8-hQ-tgd" id="I4m-E5-WKB"/>
                 <outlet property="number8" destination="0d1-qP-PsV" id="PYp-bV-JKV"/>
                 <outlet property="number9" destination="6dW-px-HMp" id="4Az-y9-c1I"/>
+                <outlet property="numberDecimal" destination="Km2-hn-mNM" id="ffM-Xo-TUZ"/>
                 <outlet property="operatorAC" destination="9N1-mb-Zv5" id="2QG-rJ-nKt"/>
                 <outlet property="operatorAddition" destination="ilC-xX-fHR" id="AXD-L9-bou"/>
                 <outlet property="operatorDivision" destination="T8S-VE-mbw" id="cvb-UA-LOZ"/>
