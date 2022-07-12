@@ -40,9 +40,57 @@ final class HomeViewController: UIViewController {
     @IBOutlet weak var operatorMultiplication: UIButton!
     @IBOutlet weak var operatorDivision: UIButton!
     
+    //MARK: - Variables
+    
+    private var total: Double = 0 // Total
+    private var temp: Double = 0 // Valor
+    private var operating = false // Indica si se ha seleccionado un operador
+    private var decimal = false // Indicar si el valor es decimal
+    private var operation: operationType = .none // Operación actual
+    
+    //MARK: - Constantes
+    
+    private let kDecimalSeparator = Locale.current.decimalSeparator!
+    private let kMaxLength = 9
+    private let kMaxValue: Double = 999999999
+    private let kMinValue: Double = 0.00000001
+    
+    private enum operationType {
+        case none, addiction, substraction, multiplication, division, percent
+    }
+    
+    // formateo de valores auxiliar
+    
+    private let auxFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        let locale = Locale.current
+        formatter.groupingSeparator = ""
+        formatter.decimalSeparator = locale.decimalSeparator
+        formatter.numberStyle = .decimal
+        return formatter
+        
+    }()
+    
+    // Formateo de valores por pantala por defecto
+    
+    private let printFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        let locale = Locale.current
+        formatter.groupingSeparator = locale.groupingSeparator
+        formatter.decimalSeparator = locale.decimalSeparator
+        formatter.numberStyle = .decimal
+        formatter.maximumIntegerDigits = 9
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 8
+        return formatter
+        
+    }()
+
+    
     //MARK: - Initialization
     
     init() {
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -78,11 +126,17 @@ override func viewDidLoad() {
     operatorDivision.round()
     numberDecimal.round()
     
+    numberDecimal.setTitle(kDecimalSeparator, for: .normal)
+    
+    result()
+    
 }
     
     //MARIK: - Button Actions
     
     @IBAction func operatorACAction(_ sender: UIButton) {
+        
+        clear()
         
         sender.shine()
         
@@ -90,11 +144,21 @@ override func viewDidLoad() {
     
     @IBAction func operatorPlusMinusAction(_ sender: UIButton) {
         
+        temp = temp * (-1)
+        resultLabel.text = printFormatter.string(from: NSNumber(value: temp))
+        
         sender.shine()
         
     }
     
     @IBAction func operatorPercentAction(_ sender: UIButton) {
+        
+        if operation != .percent {
+            result()
+        }
+        operating = true
+        operation = .percent
+        result()
         
         sender.shine()
         
@@ -102,11 +166,17 @@ override func viewDidLoad() {
     
     @IBAction func operatorResultAction(_ sender: UIButton) {
         
+        result()
+        
         sender.shine()
         
     }
     
     @IBAction func operatorAdditionAction(_ sender: UIButton) {
+        
+        result()
+        operating = true
+        operation = .addiction
         
         sender.shine()
         
@@ -114,11 +184,19 @@ override func viewDidLoad() {
     
     @IBAction func operatorSubstractionAction(_ sender: UIButton) {
         
+        result()
+        operating = true
+        operation = .substraction
+        
         sender.shine()
         
     }
     
     @IBAction func operatorMultiplicationAction(_ sender: UIButton) {
+        
+        result()
+        operating = true
+        operation = .multiplication
         
         sender.shine()
         
@@ -126,11 +204,23 @@ override func viewDidLoad() {
     
     @IBAction func operatorDivisionAction(_ sender: UIButton) {
         
+        result()
+        operating = true
+        operation = .division
+        
         sender.shine()
         
     }
     
     @IBAction func numberDecimalAction(_ sender: UIButton) {
+        
+        let currentTemp = auxFormatter.string(from: NSNumber(value: temp))!
+        if !operating && currentTemp.count >= kMaxLength {
+            return
+        }
+        
+        resultLabel.text = resultLabel.text! + kDecimalSeparator
+        decimal = true
         
         sender.shine()
         
@@ -138,8 +228,63 @@ override func viewDidLoad() {
     
     @IBAction func numberAction(_ sender: UIButton) {
         
-        sender.shine()
+        operatorAC.setTitle("C", for: .normal)
+        
+        let currentTemp = auxFormatter.string(from: NSNumber(value: temp))!
+        if !operating && currentTemp.count >= kMaxLength {
+            return
+        }
+        
+        
         print(sender.tag)
+        sender.shine()
+    }
+    
+    //MARK: - Limpia los valores
+    private func clear() {
+        operation = .none
+        operatorAC.setTitle("AC", for: .normal)
+        if temp != 0 {
+            temp = 0
+            resultLabel.text = "0"
+        }else{
+            total = 0
+            result()
+        }
+    }
+    
+    //MARK: - Obtiene el resultado final
+    private func result(){
+        
+        switch operation {
+        case .none:
+            // No hacemos nada
+            break
+        case .addiction:
+            total = total + temp
+            break
+        case .substraction:
+            total = total - temp
+            break
+        case .multiplication:
+            total = total * temp
+            break
+        case .division:
+            total = total / temp
+            break
+        case .percent:
+            temp = temp / 100
+            total = temp
+            break
+        }
+        
+        //Formateo en pantalla
+        if total <= kMaxValue || total >= kMinValue {
+            resultLabel.text = printFormatter.string(from: NSNumber(value:total))
+        }
+        
+        print("TOTAL \(total)")
     }
     
 }
+
