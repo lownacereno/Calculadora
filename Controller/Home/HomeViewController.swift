@@ -230,13 +230,30 @@ override func viewDidLoad() {
         
         operatorAC.setTitle("C", for: .normal)
         
-        let currentTemp = auxFormatter.string(from: NSNumber(value: temp))!
+        var currentTemp = auxFormatter.string(from: NSNumber(value: temp))!
         if !operating && currentTemp.count >= kMaxLength {
             return
         }
+        // Hemos seleccionado una operación
         
+        if operating {
+            total = total == 0 ? temp : total
+            resultLabel.text = ""
+            currentTemp = ""
+            operating = false
+        }
         
-        print(sender.tag)
+        // Hemos seleccionado decimales
+        
+        if decimal {
+            currentTemp = "\(currentTemp)\(kDecimalSeparator)"
+            decimal = false
+        }
+        
+        let number = sender.tag
+        temp = Double(currentTemp + String(number))!
+        resultLabel.text = printFormatter.string(from: NSNumber(value: temp))
+        
         sender.shine()
     }
     
